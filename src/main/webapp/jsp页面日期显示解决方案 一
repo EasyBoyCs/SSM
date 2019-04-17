@@ -1,0 +1,4 @@
+当后台代码解决不了时jsp页面用一下标签
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+格式如下
+value='<fmt:formatDate value="${user.birthday }" pattern="yyyy-MM-dd"/>'

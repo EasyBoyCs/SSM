@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bdqn.ssm.dao.UserMapper" >
+
+    <resultMap id="UserMap" type="User">
+        <id column="id" property="id"></id>
+        <result column="userCode" property="userCode"></result>
+        <result column="userName" property="userName"></result>
+        <result column="userPassword" property="userPassword"></result>
+        <result column="gender" property="gender"></result>
+        <result column="birthday" property="birthday"></result>
+        <result column="phone" property="phone"></result>
+        <result column="address" property="address"></result>
+        <result column="userRole" property="userRole"></result>
+        <result column="createdBy" property="createdBy"></result>
+        <result column="creationDate" property="creationDate"></result>
+        <result column="modifyBy" property="modifyBy"></result>
+        <result column="modifyDate" property="modifyDate"></result>
+        <result column="idPicPath" property="idPicPath"></result>
+        <result column="workPicPath" property="workPicPath"></result>
+        <result column="roleName" property="userRoleName"></result>
+        <association property="role" javaType="Role">
+           <id property="id" column="id"></id>
+           <result property="roleName" column="r_roleName"></result>
+        </association>
+    </resultMap>
+
+    <!--通过用户名与密码查询-->
+    <select id="getLoginUser" resultType="User">
+          select * from smbms_user
+          <trim prefix="where" prefixOverrides="and|or">
+              <if test="userCode!=null and userCode!=''">
+                  and userCode=#{userCode}
+              </if>
+          </trim>
+    </select>
+    <!--获取总记录数-->
+    <select id="getUserCount" resultType="int">
+     select count(1) from smbms_user u,smbms_role r where u.userRole=r.id
+     <if test="userName!=null and userName!=''">
+         and u.userName like concat('%',#{userName},'%')
+     </if>
+     <if test="userRole > 0">
+         and u.userRole=#{userRole}
+     </if>
+    </select>
+    <!--分页查询-->
+    <select id="getUserList" resultMap="UserMap">
+        select u.*,r.roleName as r_roleName from smbms_user u,smbms_role r where r.id=u.userRole
+        <if test="userName!=null and userName!=''">
+            and u.userName like concat('%',#{userName},'%')
+        </if>
+        <if test="userRole > 0">
+            and u.userRole=#{userRole}
+        </if>
+        limit  #{currentPageNo},#{pageSize}
+    </select>
+    <!--添加-->
+    <insert id="addUserSave" parameterType="User" >
+        insert into smbms_user(userCode,userName,userPassword,
+                               gender,birthday,phone,address,
+                               userRole,createdBy,creationDate,
+                               idPicPath,workPicPath)
+        values(#{userCode},#{userName},
+               #{userPassword},#{gender},
+               #{birthday},#{phone},
+               #{address},#{userRole},
+               #{createdBy},#{creationDate},
+               #{idPicPath},#{workPicPath})
+    </insert>
+    <!--根据id查询-->
+    <select id="getUserById" resultMap="UserMap">
+        select u.*,r.roleName from smbms_user u,smbms_role r where r.id=u.userRole and u.id=#{id}
+    </select>
+    <!--修改-->
+    <update id="updateUser" parameterType="User">
+        update smbms_user
+        set userName=#{userName},gender=#{gender},birthday=#{birthday},
+            phone=#{phone},address=#{address},userRole=#{userRole},modifyBy=#{modifyBy},modifyDate=#{modifyDate}
+        where id=#{id}
+    </update>
+    <!--删除-->
+    <delete id="deleteUser" parameterType="int">
+        delete from smbms_user where id=#{id}
+    </delete>
+
+    <select id="LoginUser" resultMap="UserMap">
+      select * from smbms_user where userCode=#{userCode}
+    </select>
+    <!--检验密码是否正确-->
+    <select id="pwdTorF" resultType="User">
+        select * from smbms_user where id=#{id} and userPassword=#{userPassword};
+    </select>
+
+    <!--修改密码-->
+    <update id="pwdModify" parameterType="User">
+        update smbms_user
+        set userPassword=#{userPassword}
+        where id=#{id}
+    </update>
+</mapper>

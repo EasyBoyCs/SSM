@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bdqn.ssm.dao.ProviderMapper" >
+
+    <resultMap id="ProMap" type="Provider">
+        <id column="id" property="id"></id>
+        <result column="proCode" property="proCode"></result>
+        <result column="proName" property="proName"></result>
+        <result column="proDesc" property="proDesc"></result>
+        <result column="proContact" property="proContact"></result>
+        <result column="proPhone" property="proPhone"></result>
+        <result column="proAddress" property="proAddress"></result>
+        <result column="proFax" property="proFax"></result>
+        <result column="createdBy" property="createdBy"></result>
+        <result column="creationDate" property="creationDate"></result>
+        <result column="modifyBy" property="modifyBy"></result>
+        <result column="modifyDate" property="modifyDate"></result>
+        <result column="companyLicPicPath" property="companyLicPicPath"></result>
+        <result column="orgCodePicPath" property="orgCodePicPath"></result>
+    </resultMap>
+
+    <!--查询所有-->
+    <select id="ProviderList" resultType="Provider">
+        select * from smbms_provider;
+    </select>
+    <!--获取总记录数-->
+    <select id="proCount" resultType="int">
+        select count(*) from smbms_provider
+        <where>
+            <if test="proCode!=null and proCode!=''">
+                and proCode like concat('%',#{proCode},'%')
+            </if>
+            <if test="proName!=null and proName!=''">
+                and proName like concat('%',#{proName},'%')
+            </if>
+        </where>
+    </select>
+    <!--分页查询-->
+    <select id="proList" resultMap="ProMap">
+        select * from smbms_provider
+        <where>
+            <if test="proCode!=null and proCode!=''">
+               and proCode like concat('%',#{proCode},'%')
+            </if>
+            <if test="proName!=null and proName!=''">
+               and proName like concat('%',#{proName},'%')
+            </if>
+        </where>
+        limit #{pageNo},#{pageSize}
+    </select>
+    <!--增加-->
+    <insert id="addPro" parameterType="Provider">
+        insert into smbms_provider(proCode,proName,proContact,
+                                   proPhone,proAddress,proFax,
+                                   proDesc,createdBy,creationDate,
+                                   companyLicPicPath,orgCodePicPath)
+        values (#{proCode},#{proName},#{proContact},
+                #{proPhone},#{proAddress},#{proFax},
+                #{proDesc},#{createdBy},#{creationDate},#{companyLicPicPath},#{orgCodePicPath})
+    </insert>
+    <!--根据ID查询-->
+    <select id="proById" resultMap="ProMap">
+        select * from smbms_provider where id=#{id};
+    </select>
+    <!--修改-->
+    <update id="proModify" parameterType="Provider">
+        update smbms_provider
+        set proCode=#{proCode},proName=#{proName},proContact=#{proContact},proPhone=#{proPhone},
+            proAddress=#{proAddress},proFax=#{proFax},proDesc=#{proDesc},modifyBy=#{modifyBy},modifyDate=#{modifyDate},
+            companyLicPicPath=#{companyLicPicPath},orgCodePicPath=#{orgCodePicPath}
+        where id=#{id}
+    </update>
+    <!--删除-->
+    <delete id="delPro" parameterType="int">
+        delete from smbms_provider where id=#{id}
+    </delete>
+</mapper>

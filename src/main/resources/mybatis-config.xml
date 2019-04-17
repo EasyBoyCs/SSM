@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <settings>
+        <!--MyBatis延迟加载  懒 -->
+        <setting name="lazyLoadingEnabled" value="false"/>
+    </settings>
+    <!--给实体类起别名-->
+    <typeAliases>
+        <!--一: 给指定的实体类起别名-->
+        <!--<typeAlias type="com.bdqn.mybatis.entity.User" alias="User"></typeAlias>-->
+        <!--二: 给指定包下的所有实体类起别名,默认为类名-->
+            <package name="com.bdqn.ssm.entity"></package>
+    </typeAliases>
+
+</configuration>

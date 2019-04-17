@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/aop
+                        http://www.springframework.org/schema/aop/spring-aop.xsd
+                        http://www.springframework.org/schema/context
+                        http://www.springframework.org/schema/context/spring-context.xsd
+                        http://www.springframework.org/schema/tx
+                        http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!--扫描用注解标注的类-->
+    <context:component-scan base-package="com.bdqn.ssm"></context:component-scan>
+    <!--切面注解-->
+    <aop:aspectj-autoproxy></aop:aspectj-autoproxy>
+
+    <!--加载数据库配置文件-->
+    <context:property-placeholder location="classpath:database.properties"/>
+    <!--配置数据源 (dbcp 连接池) sql心跳包-->
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close" scope="singleton">
+        <property name="driverClassName" value="${driver}"/>
+        <property name="url" value="${url}"/>
+        <property name="username" value="${user}"/>
+        <property name="password" value="${password}"/>
+        <property name="initialSize" value="${initialSize}"/>
+        <property name="maxActive" value="${maxActive}"/>
+        <property name="maxIdle" value="${maxIdle}"/>
+        <property name="minIdle" value="${minIdle}"/>
+        <property name="maxWait" value="${maxWait}"/>
+        <property name="removeAbandonedTimeout" value="${removeAbandonedTimeout}"/>
+        <property name="removeAbandoned" value="${removeAbandoned}"/>
+        <!-- sql 心跳 -->
+        <property name= "testWhileIdle" value="true"/>
+        <property name= "testOnBorrow" value="false"/>
+        <property name= "testOnReturn" value="false"/>
+        <property name= "validationQuery" value="select 1"/>
+        <property name= "timeBetweenEvictionRunsMillis" value="60000"/>
+        <property name= "numTestsPerEvictionRun" value="${maxActive}"/>
+    </bean>
+    <!--配置sqlSessionFactory 工厂-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--数据源-->
+        <property name="dataSource" ref="dataSource"/>
+        <!--加载MyBatis配置文件-->
+        <property name="configLocation" value="classpath:mybatis-config.xml"/>
+        <!--加载映射文件-->
+        <property name="mapperLocations">
+            <list>
+                <value>classpath:mapper/**/*.xml</value>
+            </list>
+        </property>
+    </bean>
+    <!--配置sqlSessionTemplate-->
+    <bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg name="sqlSessionFactory" ref="sqlSessionFactory"/>
+    </bean>
+    <!--标注Dao  无需dao接口实现类-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.bdqn.ssm.dao"></property>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+    </bean>
+    <!--配置切入面 AOP 事务处理  前值增强等等-->
+    <aop:config>
+        <aop:pointcut id="myPointcut" expression="execution(* com.bdqn.ssm..*.*(..))"></aop:pointcut>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="myPointcut"></aop:advisor>
+    </aop:config>
+    <!--配置事务管理器-->
+    <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+    <!--为事务管理器指定事务规则-->
+    <tx:advice id="txAdvice" transaction-manager="txManager">
+        <tx:attributes>
+          <!--  <tx:method name="add*" timeout="1000" propagation="REQUIRED"></tx:method>
+            <tx:method name="update*" propagation="REQUIRED"></tx:method>
+            <tx:method name="del*" propagation="REQUIRED"></tx:method>
+            <tx:method name="find*" propagation="REQUIRED"></tx:method>-->
+            <tx:method name="*" propagation="REQUIRED" rollback-for="Exception"/>
+        </tx:attributes>
+    </tx:advice>
+
+</beans>

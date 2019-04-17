@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bdqn.ssm.dao.RoleMapper" >
+
+
+    <resultMap id="RoleList" type="Role">
+        <id column="id" property="id"></id>
+        <result column="roleCode" property="roleCode"></result>
+        <result column="roleName" property="roleName"></result>
+        <result column="createdBy" property="createdBy"></result>
+        <result column="creationDate" property="creationDate"></result>
+        <result column="modifyBy" property="modifyBy"></result>
+        <result column="modifyDate" property="modifyDate"></result>
+    </resultMap>
+    <!--查询所有-->
+    <select id="getRoleList" resultType="Role">
+       select * from smbms_role
+    </select>
+
+    <!--添加-->
+    <insert id="addRole" parameterType="Role">
+        insert into smbms_role(roleName,roleCode,createdBy,creationDate)
+        values (#{roleName},#{roleCode},#{createdBy},#{creationDate})
+    </insert>
+</mapper>
